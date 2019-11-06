@@ -1,0 +1,9 @@
+Only the add an animal form and two empty divs (one for the buttons and one for the Gifs) are coded statically 
+
+The buttons along the top of the page will be created dynamically using the "topics" array
+
+When the user clicks a button, an AJAX function will run to get 10 related gifs using the Giphy API, which will be displayed as still images on the page along with their rating
+
+Clicking a different button will remove the existing Gifs from the page and replace them with 10 static gifs related to the word clicked
+
+When a user clicks submit to add an animal, run a function to stop the default form submission and instead add the user input to the "topics" array, create a button for it, and append the button to the page
