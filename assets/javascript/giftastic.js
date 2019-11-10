@@ -1,101 +1,103 @@
-//VARIABLES
-//================================================================================================================================================
-  var topics = ['German Shepherd', 'Labrador', 'Golden Retriever']
+$(document).ready(function() {
 
-//FUNCTIONS
-//================================================================================================================================================
+  //VARIABLES
+  //================================================================================================================================================
+    var topics = ['German Shepherd', 'Labrador', 'Golden Retriever','Corgi', 'Pitbull', 'Rottweiler', 'Yorkshire Terrier', 'Maltese', 'Poodle', 'Toy Terrier', 'Bischon Frise', 'Australian Shepherd', 'Chihuahua', 'Huskie', 'Alaskan Malamute', 'French Bulldog', 'English Bulldog', 'Beagle', 'Shiba Inu', 'Pomeranian', 'Doberman', 'Great Dane', 'Chow Chow', 'Greyhound', 'English Mastiff', 'Boston Terrier', 'Pug', 'Cocker Spaniel', 'Boxer', 'Shih-Tzu'];
+
+  //FUNCTIONS
+  //================================================================================================================================================
   //Create a function that dynamically populates the button div from the topics array when the page loads
-  
-  function renderButtons () {
-    for (i=0; i<topics.length; i++) {
+  function renderButtons (tempArray, classToAdd, areaToAddTo) {
+    //Empty the buttons div so the buttons are not repeated everytime renderButtons() is called
+    $(areaToAddTo).empty();
+    //Loop through the 'topics' array and create a button for each item
+    for (i=0; i<tempArray.length; i++) {
+      //Create a new button div for the item
       var topicButton = $('<button>')
-      topicButton.text(topics[i]);
-      topicButton.attr('id', topics[i]);
-      $('#buttons').append(topicButton);
+      //Add a class
+      topicButton.addClass(classToAdd);
+      //Add a data-type attribute
+      topicButton.attr('data-type',tempArray[i]);
+      //Add text to the button
+      topicButton.text(tempArray[i]);
+      //Append the new button to the 'buttons' div
+      $(areaToAddTo).append(topicButton);
     }
   }
 
-  //Create a function that pulls 10 gifs related to the user input (from click event) from the Giphy API and appends them to the gif div along with their rating
+  //LOGIC
+  //================================================================================================================================================
+ 
+  //Add gifs to page when user clicks on a topic button
+  $(document).on('click', '.topic-button', function() {
+    $('#gifs').empty();
+    $('.topic-button').removeClass('active');
+    $(this).addClass('active');
 
-  var queryURL = 'https://api.giphy.com/v1/gifs/search?q=German%20Shepherd&api_key=BkaUZZWcFij6J7AoQj3WtPb1R2p9O6V9&limit=10'
+    var type = $(this).attr('data-type');
+    var queryURL = 'https://api.giphy.com/v1/gifs/search?q=' + type + '&api_key=wpks66P9We1LSnrgiUcOoxrEuckYcnhC&limit=10'
 
-  function getGifs (topic) {
-    var queryURL = 'https://api.giphy.com/v1/gifs/search?q=' + topic + '&api_key=wpks66P9We1LSnrgiUcOoxrEuckYcnhC&limit=10'
     $.ajax({
       url: queryURL,
       method: 'GET'
     })
       .then(function(response) {
-        console.log(response);
-        //Storing an array of results in the results variable
         var results = response.data;
-        console.log(results);
 
-        //Looping over every result item
-        for (var i=0; i<results.length; i++) {
-          //Creating a div for the gif
-          var gifDiv = $('<div>');
-          //Storing the result item's rating
+        for (var i=0; i < results.length; i++) {
+          var gifDiv = $('<div class="topic-item">');
+
           var rating = results[i].rating;
 
-          //Creating a paragraph tag with the result item's rating
           var p = $('<p>').text('Rating: ' + rating);
 
-          // Creating an image tag
-          var animalImage = $('<img>');
+          var animated = results[i].images.fixed_width.url;
+          var still = results[i].images.fixed_width_still.url;
 
-          //Giving the image tag an src attribute of a property pulled off the result item
-          animalImage.attr('src',results[i].images.fixed_width_small_still.url);
-          animalImage.attr('data-still',results[i].images.fixed_width_small_still.url);
-          animalImage.attr('data-animate',results[i].images.fixed_width_small.url);
-          animalImage.attr('data-state', 'still');
+          var topicImage = $('<img>');
+          topicImage.attr('src', still);
+          topicImage.attr('data-still', still);
+          topicImage.attr('data-animate', animated);
+          topicImage.attr('data-state', 'still');
+          topicImage.addClass('topic-image');
 
-          //Appending the paragraph ad animalImage we created to the gifDiv
           gifDiv.append(p);
-          gifDiv.append(animalImage);
-          console.log(animalImage);
+          gifDiv.prepend(topicImage);
 
-          //Prepending the gifDiv to the '#gifs' div in the HTML
-          $('#gifs').prepend(gifDiv);
-        }
-      })
-  };
-  
-  //Create a function that adds the user's input from the 'Add a topic' form into the 'topics' array
+          $('#gifs').append(gifDiv);
+         }
+      });
+  });
 
-//LOGIC
-//================================================================================================================================================
+  //Play gifs when user clicks on them
+  $(document).on('click', '.topic-image', function() {
+    console.log(this);
+    // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+    var state = $(this).attr('data-state');
+    // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+    // Then, set the image's data-state to animate
+    // Else set src to the data-still value
+    if (state === 'still') {
+      $(this).attr('src', $(this).attr('data-animate'));
+      $(this).attr('data-state', 'animate');
+    } else {
+      $(this).attr('src', $(this).attr('data-still'));
+      $(this).attr('data-state', 'still');
+    }
+  });
 
+  //listen for clicks on the 'add a topic' button and add the user input into the topics array
+  $('#submitButton').on('click', function(event){
+    //Prevent the default form submission
+    event.preventDefault();
+    var newTopic = $('#addTopicInput').eq(0).val();
 
-//When the page load, populate the buttons 
-renderButtons();
+    topics.push(newTopic);
 
+    renderButtons(topics,'topic-button', '#topic-buttons');
 
-//Add gifs to page when user clicks on a topic button
-$('button').on('click', function() {
-  $('#gifs').empty();
-  var topic = $(this).attr('id');
-  console.log(topic);
-  getGifs(topic);
+  });
+
+  renderButtons(topics,'topic-button','#topic-buttons');
 
 });
-
-//Play gifs when user clicks on them
-$('image').on('click', function() {
-  console.log('Click registered');
-  // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
-  var state = $(this).attr('data-state');
-  // If the clicked image's state is still, update its src attribute to what its data-animate value is.
-  // Then, set the image's data-state to animate
-  // Else set src to the data-still value
-  if (state === 'still') {
-    $(this).attr('src', $(this).attr('data-animate'));
-    $(this).attr('data-state', 'animate');
-  } else {
-    $(this).attr('src', $(this).attr('data-still'));
-    $(this).attr('data-state', 'still');
-  }
-});
-
-
-//listen for clicks on the 'add a topic' button
