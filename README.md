@@ -10,4 +10,4 @@ A web app utilizing the Giphy API to display GIFs by clicking on different butto
   * jQuery - HTML manipulation
   * AJAX - Data retrieval
 
-[See the end result](https://ichumats22.github.io/Train-Time/)
+[See the end result](https://ichumats22.github.io/GIFTastic/.)
